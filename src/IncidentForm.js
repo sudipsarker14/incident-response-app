@@ -35,7 +35,7 @@ function IncidentForm() {
         console.log(incident);
 
     try {
-        const response = await axios.post('http://localhost:8082/addUser', incident);
+        const response = await axios.post('http://localhost:8082/addIncident', incident);
         console.log(response.data);
         alert("Incident added successfully");
 
@@ -45,9 +45,9 @@ function IncidentForm() {
 }
     return (
         <form onSubmit={handleSubmit}>
-            <label>Incident No:</label>
-            <input type="text" name="incidentNo" value={incident.incidentNo} onChange={handleChange} />
-
+   {/*         <label>Incident No:</label>
+          <input type="text" name="incidentNo" value={incident.incidentNo} onChange={handleChange} />
+*/}
             <label>Date Of Incident:</label>
             <input type="date" name="dateOfIncident" value={incident.dateOfIncident} onChange={handleChange} />
 
@@ -61,13 +61,13 @@ function IncidentForm() {
                 <option value="natural">Natural Calamities Incident</option>
             </select>
             <label>Place of Incident:</label>
-            <input type="text" name="placeOfIncident" value={incident.placeOfIncident} onChange={handleChange} />
+            <input type="text" name="placeOfIncident" placeholder="Enter the place of incident" value={incident.placeOfIncident} onChange={handleChange} />
 
             <label>Brief Description:</label>
-            <textarea name="briefDescription" value={incident.briefDescription} onChange={handleChange} />
+            <textarea name="briefDescription" placeholder="Enter the description of incident" value={incident.briefDescription} onChange={handleChange} />
 
             <label>Actions Taken:</label>
-            <textarea name="actionsTaken" value={incident.actionsTaken} onChange={handleChange} />
+            <textarea name="actionsTaken" placeholder="Actions taken" value={incident.actionsTaken} onChange={handleChange} />
 
             <label>Incident Status:</label>
             <select name="incidentStatus" value={incident.incidentStatus} onChange={handleChange}>
@@ -79,17 +79,17 @@ function IncidentForm() {
             <input type="date" name="completionDate" value={incident.completionDate} onChange={handleChange} />
 
             <label>Responded By:</label>
-            <input type="text" name="respondedBy" value={incident.respondedBy} onChange={handleChange} />
+            <input type="text" name="respondedBy" placeholder="Enter Responder name" value={incident.respondedBy} onChange={handleChange} />
 
             <label>Initiator:</label>
-            <input type="text" name="initiator" value={incident.initiator} onChange={handleChange} />
+            <input type="text" name="initiator" placeholder="Enter initiator name" value={incident.initiator} onChange={handleChange} />
 
             <label>Responsible Officer:</label>
-            <input type="text" name="responsibleOfficer" value={incident.responsibleOfficer} onChange={handleChange} />
+            <input type="text" name="responsibleOfficer" placeholder="Enter Responsible officer name" value={incident.responsibleOfficer} onChange={handleChange} />
 
 
             <label>Impact:</label>
-            <input type="text" name="impact" value={incident.impact} onChange={handleChange} />
+            <input type="text" name="impact" placeholder="Enter the impact of incident" value={incident.impact} onChange={handleChange} />
 
             <label>Severity:</label>
             <select name="severity" value={incident.severity} onChange={handleChange}>
@@ -100,7 +100,7 @@ function IncidentForm() {
             </select>
 
             <label>Stakeholders:</label>
-            <input type="text" name="stakeholders" value={incident.stakeholders} onChange={handleChange} />
+            <input type="text" name="stakeholders" placeholder="Enter stake holders names" value={incident.stakeholders} onChange={handleChange} />
 
             <label>Actions Required By:</label>
             <select name="actionsRequiredBy" value={incident.actionsRequiredBy} onChange={handleChange}>
@@ -110,11 +110,7 @@ function IncidentForm() {
             </select>
            
             <label>Remarks:</label>
-            <textarea name="remarks" value={incident.remarks} onChange={handleChange} />
-
-            <label>Signature with Name & Designation:</label>
-            <input type="text" name="signatureWithNameDesignation" value={incident.signatureWithNameDesignation} onChange={handleChange} />
-
+            <textarea name="remarks" placeholder="Enter Remarks" value={incident.remarks} onChange={handleChange} />
             <button type="submit">Submit</button>
         </form>
     );
