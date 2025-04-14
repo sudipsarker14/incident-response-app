@@ -1,4 +1,4 @@
-.App {
+App {
   max-width: 800px;
   margin: 20px auto;
   font-family: Arial, sans-serif;
@@ -25,7 +25,7 @@ form input, form textarea, form select {
 }
 
 form textarea {
-  height: 100px; /* Adjust based on your need */
+  height: 100px;  /*Adjust based on your need*/ 
 }
 
 button {
