@@ -22,7 +22,7 @@ function App() {
     <BrowserRouter>
         <Routes>
           <Route path="/incident" element={<IncidentForm />} />
-          <Route path="/deshboard" element={<ProductsDemo />} /> 
+          <Route path="/deshboard" element={<ProductsDemo />} />  
         </Routes>
     </BrowserRouter>
     </div>

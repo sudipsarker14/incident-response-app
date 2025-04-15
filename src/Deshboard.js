@@ -14,6 +14,7 @@ import { InputIcon } from 'primereact/inputicon';
 import { RadioButton } from 'primereact/radiobutton';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
+import { Calendar } from 'primereact/calendar';
 import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
 
@@ -41,26 +42,38 @@ export default function ProductsDemo() {
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
-
+    const [first, setFirst] = useState([]);
+    
     useEffect(() => {
+      fetch("https://shoping-store-server.vercel.app/product")
+        .then((res) => res.json())
+        .then((data) => {
+          // const nike = data.filter(data=>data.brand == 'Nike')
+          setFirst(data);
+          // console.log(data)
+        });
+    }, []);
+   /* useEffect(() => {
         ProductService.getProducts().then((data) => setProducts(data));
     }, []);
-
+*/
+    /*
     const formatCurrency = (value) => {
         return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
     };
+*/
 
     const openNew = () => {
         setProduct(emptyProduct);
         setSubmitted(false);
         setProductDialog(true);
     };
-
+/*
     const hideDialog = () => {
         setSubmitted(false);
         setProductDialog(false);
     };
-
+*/
     const hideDeleteProductDialog = () => {
         setDeleteProductDialog(false);
     };
@@ -68,13 +81,13 @@ export default function ProductsDemo() {
     const hideDeleteProductsDialog = () => {
         setDeleteProductsDialog(false);
     };
-
+/*
     const saveProduct = () => {
         setSubmitted(true);
 
         if (product.name.trim()) {
             let _products = [...products];
-            let _product = { ...product };
+            let _product = {...product };
 
             if (product.id) {
                 const index = findIndexById(product.id);
@@ -93,12 +106,12 @@ export default function ProductsDemo() {
             setProduct(emptyProduct);
         }
     };
+*/
 
     const editProduct = (product) => {
         setProduct({ ...product });
         setProductDialog(true);
     };
-
     const confirmDeleteProduct = (product) => {
         setProduct(product);
         setDeleteProductDialog(true);
@@ -112,7 +125,7 @@ export default function ProductsDemo() {
         setProduct(emptyProduct);
         toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
     };
-
+/*
     const findIndexById = (id) => {
         let index = -1;
 
@@ -125,7 +138,15 @@ export default function ProductsDemo() {
 
         return index;
     };
-
+    */
+    const formatDate = (value) => {
+        return value.toLocaleDateString('en-US', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
+      };
+/*
     const createId = () => {
         let id = '';
         let chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -136,7 +157,7 @@ export default function ProductsDemo() {
 
         return id;
     };
-
+*/
     const exportCSV = () => {
         dt.current.exportCSV();
     };
@@ -144,7 +165,8 @@ export default function ProductsDemo() {
     const confirmDeleteSelected = () => {
         setDeleteProductsDialog(true);
     };
-
+    
+    // Delete selected product
     const deleteSelectedProducts = () => {
         let _products = products.filter((val) => !selectedProducts.includes(val));
 
@@ -153,7 +175,8 @@ export default function ProductsDemo() {
         setSelectedProducts(null);
         toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
     };
-
+    
+/*
     const onCategoryChange = (e) => {
         let _product = { ...product };
 
@@ -178,7 +201,8 @@ export default function ProductsDemo() {
 
         setProduct(_product);
     };
-
+    */
+    // New & Delete button
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
@@ -187,11 +211,11 @@ export default function ProductsDemo() {
             </div>
         );
     };
-
+    // Export button
     const rightToolbarTemplate = () => {
         return <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />;
     };
-
+/*
     const imageBodyTemplate = (rowData) => {
         return <img src={`https://primefaces.org/cdn/primereact/images/product/${rowData.image}`} alt={rowData.image} className="shadow-2 border-round" style={{ width: '64px' }} />;
     };
@@ -203,11 +227,11 @@ export default function ProductsDemo() {
     const ratingBodyTemplate = (rowData) => {
         return <Rating value={rowData.rating} readOnly cancel={false} />;
     };
-
+*/
     const statusBodyTemplate = (rowData) => {
         return <Tag value={rowData.inventoryStatus} severity={getSeverity(rowData)}></Tag>;
     };
-
+// Delete & edit button
     const actionBodyTemplate = (rowData) => {
         return (
             <React.Fragment>
@@ -235,19 +259,20 @@ export default function ProductsDemo() {
 
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-            <h4 className="m-0">Manage Products</h4>
+            <h4 className="m-0">Incidents</h4>
             <IconField iconPosition="left">
                 <InputIcon className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
             </IconField>
         </div>
     );
+    /*
     const productDialogFooter = (
         <React.Fragment>
             <Button label="Cancel" icon="pi pi-times" outlined onClick={hideDialog} />
             <Button label="Save" icon="pi pi-check" onClick={saveProduct} />
         </React.Fragment>
-    );
+    );*/
     const deleteProductDialogFooter = (
         <React.Fragment>
             <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteProductDialog} />
@@ -256,10 +281,25 @@ export default function ProductsDemo() {
     );
     const deleteProductsDialogFooter = (
         <React.Fragment>
-            <Button label="No" icon="pi pi-times" outlined onClick={hideDeleteProductsDialog} />
-            <Button label="Yes" icon="pi pi-check" severity="danger" onClick={deleteSelectedProducts} />
+            <Button label="No" icon="pi pi-times" outlined onClick= {hideDeleteProductsDialog} />
+            <Button label="Yes" icon="pi pi-check" severity="danger" onClick= {deleteSelectedProducts} />
         </React.Fragment>
     );
+    const dateBodyTemplate = (rowData) => {
+        return formatDate(rowData.date);
+      };
+    
+      const dateFilterTemplate = (options) => {
+        return (
+          <Calendar
+            value={options.value}
+            onChange={(e) => options.filterCallback(e.value, options.index)}
+            dateFormat="mm/dd/yy"
+            placeholder="mm/dd/yyyy"
+            mask="99/99/9999"
+          />
+        );
+      };
 
     return (
         <div>
@@ -271,18 +311,37 @@ export default function ProductsDemo() {
                         dataKey="id"  paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products" globalFilter={globalFilter} header={header}>
-                    <Column selectionMode="multiple" exportable={false}></Column>
-                    <Column field="code" header="Code" sortable style={{ minWidth: '12rem' }}></Column>
+                    <Column selectionMode="multiple" exportable={false}></Column>                 
+                    <Column field="incident_id" header="ID" sortable style={{ minWidth: '6 rem' }}></Column>
+                    <Column field="date_of_incident"header="Date Of Incident" dataType="date" sortable style={{ minWidth: '12rem' }}></Column>
+                    <Column field="reporting_date"header="Reporting Date" dataType="date" sortable style={{ minWidth: '12rem' }}></Column>
+                    <Column field="nature_of_incident:" header="Nature of Incident" sortable style={{ minWidth: '10rem' }}></Column>
+                    <Column field="place_of_incident" header="Place of Incident" sortable style={{ minWidth: '10rem' }}></Column>
+                    <Column field="brief_description" header="Brief Description" sortable style={{ minWidth: '10rem' }}></Column>
+                    <Column field="actions_taken" header="Actions Taken" sortable style={{ minWidth: '10rem' }}></Column>
+                    <Column field="incident_status" header="Incident Status" sortable style={{ minWidth: '10rem' }}></Column>
+                    <Column field="completion_date"header="Completion Date" dataType="date" sortable style={{ minWidth: '12rem' }}></Column>
+                    <Column field="responded_by" header="Responded By" sortable style={{ minWidth: '10rem' }}></Column>
+                    <Column field="initiator" header="Initiator" sortable style={{ minWidth: '10rem' }}></Column>
+                    <Column field="responsible_officer:" header="Responsible Officer" sortable style={{ minWidth: '10rem' }}></Column>
+                    <Column field="impact:" header="Impact" sortable style={{ minWidth: '10rem' }}></Column>
+                    <Column field="severity" header="Severity" body={statusBodyTemplate} sortable style={{ minWidth: '12rem' }}></Column>
+                    <Column field="stakeholders" header="Stakeholders" sortable style={{ minWidth: '16rem' }}></Column>
+                    <Column field="actions_required_by" header="Actions Required By" sortable style={{ minWidth: '16rem' }}></Column>
+                    <Column field="remarks" header="Remarks" sortable style={{ minWidth: '16rem' }}></Column>
+                   {/*
                     <Column field="name" header="Name" sortable style={{ minWidth: '16rem' }}></Column>
                     <Column field="image" header="Image" body={imageBodyTemplate}></Column>
                     <Column field="price" header="Price" body={priceBodyTemplate} sortable style={{ minWidth: '8rem' }}></Column>
                     <Column field="category" header="Category" sortable style={{ minWidth: '10rem' }}></Column>
                     <Column field="rating" header="Reviews" body={ratingBodyTemplate} sortable style={{ minWidth: '12rem' }}></Column>
                     <Column field="inventoryStatus" header="Status" body={statusBodyTemplate} sortable style={{ minWidth: '12rem' }}></Column>
-                    <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column>
+                    */}
+                    {/* Edit & Delete button*/}
+                  <Column body={actionBodyTemplate} exportable={false} style={{ minWidth: '12rem' }}></Column> 
                 </DataTable>
             </div>
-
+{/*
             <Dialog visible={productDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Product Details" modal className="p-fluid" footer={productDialogFooter} onHide={hideDialog}>
                 {product.image && <img src={`https://primefaces.org/cdn/primereact/images/product/${product.image}`} alt={product.image} className="product-image block m-auto pb-3" />}
                 <div className="field">
@@ -336,7 +395,7 @@ export default function ProductsDemo() {
                     </div>
                 </div>
             </Dialog>
-
+*/}
             <Dialog visible={deleteProductDialog} style={{ width: '32rem' }} breakpoints={{ '960px': '75vw', '641px': '90vw' }} header="Confirm" modal footer={deleteProductDialogFooter} onHide={hideDeleteProductDialog}>
                 <div className="confirmation-content">
                     <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
