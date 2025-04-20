@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import { classNames } from 'primereact/utils';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -20,7 +21,7 @@ import { Tag } from 'primereact/tag';
 import { data } from 'react-router-dom';
 
 
-export default function ProductsDemo() {
+const Table = () => {
     let emptyProduct = {
         id: null,
         name: '',
@@ -33,27 +34,37 @@ export default function ProductsDemo() {
         inventoryStatus: 'INSTOCK'
     };
 
-    const [products, setProducts] = useState(null);
+    const [products, setProducts] = useState([])
     const [productDialog, setProductDialog] = useState(false);
     const [deleteProductDialog, setDeleteProductDialog] = useState(false);
     const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
     const [product, setProduct] = useState(emptyProduct);
-    const [selectedProducts, setSelectedProducts] = useState(null);
+    const [selectedIncidents, setSelectedIncidents] = useState(null);
     const [submitted, setSubmitted] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
     const [first, setFirst] = useState([]);
 
-    useEffect(() => {
-      fetch("http://localhost:8082/deshboard")
-        .then((res) => res.json())
-        .then((data) => {
-          // const nike = data.filter(data=>data.brand == 'Nike')
-          setFirst(data);
-          // console.log(data)
-        });
-    }, []);
+    const [data, setData] = useState([]);
+     const [loading, setLoading] = useState(true);
+     const [error, setError] = useState(null);
+     const [posts, setPosts] = useState([]);
+
+
+  // Fetching data from API using Axios
+  useEffect(() => {
+    axios.get('http://localhost:8082/deshboard')  // Replace with your API URL
+      .then(response => {
+        setData(response.data);  // Set your API response to the state
+        setLoading(false);        // Set loading to false once data is fetched
+      })
+      .catch(err => {
+        setError('Error fetching data');
+        setLoading(false);
+      });
+  }, []);  // Empty dependency array ensures this runs once when the component is mounted
+
     /*
     useEffect(() => {
         // Fetch data from the backend (replace URL with actual API endpoint)
@@ -177,19 +188,87 @@ export default function ProductsDemo() {
     };
 
     const confirmDeleteSelected = () => {
-        setDeleteProductsDialog(true);
+       setDeleteProductsDialog(true);
+       // deleteSelectedIncident(selectedIncidents);
     };
-    
+   /* 
     // Delete selected product
-    const deleteSelectedProducts = () => {
-        let _products = products.filter((val) => !selectedProducts.includes(val));
+    const deleteSelectedIncidents = () => {
+        let _products = products.filter((val) => !selectedIncidents.includes(val));
 
         setProducts(_products);
         setDeleteProductsDialog(false);
-        setSelectedProducts(null);
+        setSelectedIncidents(null);
         toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
     };
+*/
+ /*
+    const deleteSelectedIncident = async => {
+        try {
+
+            // Ensure the id is provided
+            if (!setSelectedIncidents) {
+                toast.current.show({ severity: 'warn', summary: 'No selection', detail: 'No incident selected for deletion', life: 3000 });
+                return; // Exit if no incident ID is provided
+            } 
+
+            const response = fetch("http://localhost:8082/deshboard/${setSelectedIncidents}", {
+                method: 'DELETE',
+            });
     
+            if (!response.ok) {
+                throw new Error(`Failed to delete incident with ID: ${setSelectedIncidents}`);
+            }
+    
+            // Filter out the deleted incident from the local state
+            let _products = Array.isArray(products) ? products.filter((val) => val.id !== setSelectedIncidents) : []; // Ensure products is an array
+    
+            setProducts(_products);  // Update the local state with the remaining products
+            setDeleteProductsDialog(false);  // Close the delete dialog
+            setSelectedIncidents(null);  // Reset selected incidents
+    
+            toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Incident Deleted', life: 3000 });
+        } catch (error) {
+            toast.current.show({ severity: 'error', summary: 'Error', detail: error.message, life: 3000 });
+        }
+    };
+*/
+
+const deleteSelectedIncident = () => {
+    // First, make an API call to delete the selected incidents
+    axios
+        .delete('http://localhost:8082/deshboard/{id}', {
+            data: { ids: selectedIncidents }, // Send the selected incidents' IDs in the request body
+        })
+        .then(response => {
+            // If the delete was successful, update the state
+            let _products = products.filter((val) => !selectedIncidents.includes(val));
+
+            setProducts(_products);
+            setDeleteProductsDialog(false);
+            setSelectedIncidents(null);
+
+            // Show success message
+            toast.current.show({
+                severity: 'success',
+                summary: 'Successful',
+                detail: 'Incidents Deleted',
+                life: 3000,
+            });
+        })
+        .catch(error => {
+            // Handle errors
+            console.error('Error deleting incidents:', error);
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to delete incidents',
+                life: 3000,
+            });
+        });
+};
+
+
 /*
     const onCategoryChange = (e) => {
         let _product = { ...product };
@@ -221,7 +300,7 @@ export default function ProductsDemo() {
         return (
             <div className="flex flex-wrap gap-2">
                 <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
-                <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedProducts || !selectedProducts.length} />
+                <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedIncidents || !selectedIncidents.length} />
             </div>
         );
     };
@@ -297,7 +376,7 @@ export default function ProductsDemo() {
     const deleteProductsDialogFooter = (
         <React.Fragment>
             <Button label="No" icon="pi pi-times" outlined onClick= {hideDeleteProductsDialog} />
-            <Button label="Yes" icon="pi pi-check" severity="danger" onClick= {deleteSelectedProducts} />
+            <Button label="Yes" icon="pi pi-check" severity="danger" onClick= {deleteSelectedIncident} />
         </React.Fragment>
     );
     const dateBodyTemplate = (rowData) => {
@@ -315,35 +394,103 @@ export default function ProductsDemo() {
           />
         );
       };
-
+      const columns = [
+        {
+          field: 'incidentNo', // Use the correct data key
+          header: 'ID', // The column header
+          sortable: true,
+          style: { width: '200px' }
+        },
+        {
+          field: 'dateOfIncident',
+          header: 'Date of Incident', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'natureOfIncident',
+          header: 'Nature of Incident', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'placeOfIncident',
+          header: 'Place of Incident', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'actionsTaken',
+          header: 'Actions Taken', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'incidentStatus',
+          header: 'Status', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'completionDate',
+          header: 'Completion Date', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'respondedBy',
+          header: 'Responded By', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'initiator',
+          header: 'Initiator', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'ResponsibleOfficer',
+          header: 'Responsible Officer', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'impact',
+          header: 'Impact', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'severity',
+          header: 'Severity', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'stakeholders',
+          header: 'Stake Holders', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'actionsRequiredBy',
+          header: 'Actions Required By', // The column header
+          sortable: true, // Enable sorting
+        },
+        {
+          field: 'remarks',
+          header: 'Remarks', // The column header
+          sortable: true, // Enable sorting
+        },
+        // Add more columns as needed
+      ];
     return (
         
         <div>
             <Toast ref={toast} />
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
-                <DataTable ref={dt} value={products} selection={selectedProducts} onSelectionChange={(e) => setSelectedProducts(e.value)}
-                        dataKey="id"  paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products" globalFilter={globalFilter} header={header}>
-                    <Column selectionMode="multiple" exportable={false}></Column>                 
-                    <Column field="incident_id" header="ID" sortable style={{ minWidth: '6 rem' }}></Column>
-                    <Column field="date_of_incident"header="Date Of Incident" dataType="date" sortable style={{ minWidth: '12rem' }}></Column>
-                    <Column field="reporting_date"header="Reporting Date" dataType="date" sortable style={{ minWidth: '12rem' }}></Column>
-                    <Column field="nature_of_incident:" header="Nature of Incident" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column field="place_of_incident" header="Place of Incident" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column field="brief_description" header="Brief Description" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column field="actions_taken" header="Actions Taken" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column field="incident_status" header="Incident Status" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column field="completion_date"header="Completion Date" dataType="date" sortable style={{ minWidth: '12rem' }}></Column>
-                    <Column field="responded_by" header="Responded By" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column field="initiator" header="Initiator" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column field="responsible_officer:" header="Responsible Officer" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column field="impact:" header="Impact" sortable style={{ minWidth: '10rem' }}></Column>
-                    <Column field="severity" header="Severity" body={statusBodyTemplate} sortable style={{ minWidth: '12rem' }}></Column>
-                    <Column field="stakeholders" header="Stakeholders" sortable style={{ minWidth: '16rem' }}></Column>
-                    <Column field="actions_required_by" header="Actions Required By" sortable style={{ minWidth: '16rem' }}></Column>
-                    <Column field="remarks" header="Remarks" sortable style={{ minWidth: '16rem' }}></Column>
+                 <DataTable value={data} selection={selectedIncidents} onSelectionChange={(e) => setSelectedIncidents(e.value)} paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products" globalFilter={globalFilter} header={header}>
+                    <Column selectionMode="multiple" exportable={false}></Column>
+                    {columns.map((col, index) => (
+                              <Column key={index} field={col.field} 
+                              header={col.header}
+                              sortable={col.sortable}
+                               style={col.style} // Apply custom style (width) // Enable sorting
+                              />
+                            ))}                 
+                 
                    {/*
                     <Column field="name" header="Name" sortable style={{ minWidth: '16rem' }}></Column>
                     <Column field="image" header="Image" body={imageBodyTemplate}></Column>
@@ -431,4 +578,6 @@ export default function ProductsDemo() {
         </div>
     );
 }
+
+export default Table;
         

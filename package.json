@@ -15,6 +15,7 @@
     "primeicons": "^7.0.0",
     "primereact": "^10.9.4",
     "react": "^19.0.0",
+    "react-data-table-component": "^7.7.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.5.0",
     "react-scripts": "5.0.1",

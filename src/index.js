@@ -6,13 +6,10 @@ import 'primeflex/primeflex.css';
 import 'primereact/resources/primereact.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import './index.css';
-import ProductsDemo from "./Deshboard";
 import App from './App';
 //import './App.css'
 import './flags.css';
 import './index.css';
-import reportWebVitals from './reportWebVitals';
-import IncidentForm from './IncidentForm';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
