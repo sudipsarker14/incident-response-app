@@ -41,6 +41,7 @@ const Table = () => {
     const [product, setProduct] = useState(emptyProduct);
     const [selectedIncidents, setSelectedIncidents] = useState(null);
     const [submitted, setSubmitted] = useState(false);
+    const [dataRefresh, setDataRefresh] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
@@ -63,7 +64,7 @@ const Table = () => {
         setError('Error fetching data');
         setLoading(false);
       });
-  }, []);  // Empty dependency array ensures this runs once when the component is mounted
+  }, [dataRefresh]);  // Empty dependency array ensures this runs once when the component is mounted
 
     /*
     useEffect(() => {
@@ -138,10 +139,11 @@ const Table = () => {
         setProductDialog(true);
     };
     const confirmDeleteProduct = (product) => {
+        console.log("DELETE....",product.incidentNo);
         setProduct(product);
         setDeleteProductDialog(true);
     };
-
+/*
     const deleteProduct = () => {
         let _products = products.filter((val) => val.id !== product.id);
 
@@ -149,7 +151,49 @@ const Table = () => {
         setDeleteProductDialog(false);
         setProduct(emptyProduct);
         toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
+    };*/
+    const deleteProduct = async (dataKey) => {
+        console.log("DELETE....",product.incidentNo);
+        var deleteProductId = product.incidentNo;
+        try {
+            
+            const response = await fetch("http://localhost:8082/deshboard/"+deleteProductId, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to delete product');
+            }
+    
+            // Update the local state after the API call is successful
+            let _products = products.filter((val) => val.id !== product.id);
+            setProducts(_products);
+            setDeleteProductDialog(false);
+            setProduct(emptyProduct);
+    
+            // Show success toast
+            toast.current.show({
+                severity: 'success',
+                summary: 'Successful',
+                detail: 'Product Deleted',
+                life: 3000,
+            });
+            setDataRefresh(!dataRefresh);
+        } catch (error) {
+            // Show error toast if API call fails
+            toast.current.show({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to delete product',
+                life: 3000,
+            });
+        } // Make an API call to delete the product
+           
     };
+    
 /*
     const findIndexById = (id) => {
         let index = -1;
@@ -201,72 +245,40 @@ const Table = () => {
         setSelectedIncidents(null);
         toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
     };
-*/
- /*
-    const deleteSelectedIncident = async => {
-        try {
-
-            // Ensure the id is provided
-            if (!setSelectedIncidents) {
-                toast.current.show({ severity: 'warn', summary: 'No selection', detail: 'No incident selected for deletion', life: 3000 });
-                return; // Exit if no incident ID is provided
-            } 
-
-            const response = fetch("http://localhost:8082/deshboard/${setSelectedIncidents}", {
-                method: 'DELETE',
-            });
-    
-            if (!response.ok) {
-                throw new Error(`Failed to delete incident with ID: ${setSelectedIncidents}`);
-            }
-    
-            // Filter out the deleted incident from the local state
-            let _products = Array.isArray(products) ? products.filter((val) => val.id !== setSelectedIncidents) : []; // Ensure products is an array
-    
-            setProducts(_products);  // Update the local state with the remaining products
-            setDeleteProductsDialog(false);  // Close the delete dialog
-            setSelectedIncidents(null);  // Reset selected incidents
-    
-            toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Incident Deleted', life: 3000 });
-        } catch (error) {
-            toast.current.show({ severity: 'error', summary: 'Error', detail: error.message, life: 3000 });
+*/const deleteSelectedIncident = async (product) => {
+    try {
+        // Ensure product and product.selectId are not null or undefined
+        const incidentId = product.selectId;
+        
+        if (!incidentId) {
+            toast.current.show({ severity: 'warn', summary: 'No selection', detail: 'No incident selected for deletion', life: 3000 });
+            return;
         }
-    };
-*/
 
-const deleteSelectedIncident = () => {
-    // First, make an API call to delete the selected incidents
-    axios
-        .delete('http://localhost:8082/deshboard/{id}', {
-            data: { ids: selectedIncidents }, // Send the selected incidents' IDs in the request body
-        })
-        .then(response => {
-            // If the delete was successful, update the state
-            let _products = products.filter((val) => !selectedIncidents.includes(val));
-
-            setProducts(_products);
-            setDeleteProductsDialog(false);
-            setSelectedIncidents(null);
-
-            // Show success message
-            toast.current.show({
-                severity: 'success',
-                summary: 'Successful',
-                detail: 'Incidents Deleted',
-                life: 3000,
-            });
-        })
-        .catch(error => {
-            // Handle errors
-            console.error('Error deleting incidents:', error);
-            toast.current.show({
-                severity: 'error',
-                summary: 'Error',
-                detail: 'Failed to delete incidents',
-                life: 3000,
-            });
+        // Correctly interpolate the id into the URL
+        const response = await fetch(`http://localhost:8082/deshboard/${incidentId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
         });
+
+        if (!response.ok) {
+            throw new Error(`Failed to delete incident with ID: ${incidentId}`);
+        }
+
+        // Filter the deleted incident out of the products state
+        let _products = products.filter((val) => val.id !== incidentId);
+        setProducts(_products);
+        setDeleteProductsDialog(false);
+        setSelectedIncidents(null);
+
+        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Incident Deleted', life: 3000 });
+    } catch (error) {
+        toast.current.show({ severity: 'error', summary: 'Error', detail: error.message, life: 3000 });
+    }
 };
+
 
 
 /*
@@ -383,17 +395,7 @@ const deleteSelectedIncident = () => {
         return formatDate(rowData.date);
       };
 
-      const dateFilterTemplate = (options) => {
-        return (
-          <Calendar
-            value={options.value}
-            onChange={(e) => options.filterCallback(e.value, options.index)}
-            dateFormat="mm/dd/yy"
-            placeholder="mm/dd/yyyy"
-            mask="99/99/9999"
-          />
-        );
-      };
+   
       const columns = [
         {
           field: 'incidentNo', // Use the correct data key
@@ -473,13 +475,15 @@ const deleteSelectedIncident = () => {
         },
         // Add more columns as needed
       ];
+      
     return (
         
         <div>
             <Toast ref={toast} />
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
-                 <DataTable value={data} selection={selectedIncidents} onSelectionChange={(e) => setSelectedIncidents(e.value)} paginator rows={10} rowsPerPageOptions={[5, 10, 25]}
+                 <DataTable value={data} selection={selectedIncidents} onSelectionChange={(e) => setSelectedIncidents(e.value)} dataKey={'incidentNo'}
+                  paginator rows={10} rowsPerPageOptions={[5, 10, 25]} 
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products" globalFilter={globalFilter} header={header}>
                     <Column selectionMode="multiple" exportable={false}></Column>
