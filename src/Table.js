@@ -1,3 +1,5 @@
+import IncidentForm from './IncidentForm';
+import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { classNames } from 'primereact/utils';
@@ -66,34 +68,13 @@ const Table = () => {
       });
   }, [dataRefresh]);  // Empty dependency array ensures this runs once when the component is mounted
 
-    /*
-    useEffect(() => {
-        // Fetch data from the backend (replace URL with actual API endpoint)
-        axios.get('https://api.example.com/incidents')
-            .then(response => {
-                setProducts(response.data); // Set fetched data into products state
-                setLoading(false); // Hide loading spinner after data is loaded
-            })
-            .catch(error => {
-                console.error("Error fetching data:", error);
-                setLoading(false); // Hide loading spinner even on error
-            });
-    }, []);*/
-   /* useEffect(() => {
-        ProductService.getProducts().then((data) => setProducts(data));
-    }, []);
-*/
-    /*
-    const formatCurrency = (value) => {
-        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-    };
-*/
-
+/*
     const openNew = () => {
         setProduct(emptyProduct);
         setSubmitted(false);
         setProductDialog(true);
     };
+    */
 /*
     const hideDialog = () => {
         setSubmitted(false);
@@ -143,16 +124,8 @@ const Table = () => {
         setProduct(product);
         setDeleteProductDialog(true);
     };
-/*
-    const deleteProduct = () => {
-        let _products = products.filter((val) => val.id !== product.id);
 
-        setProducts(_products);
-        setDeleteProductDialog(false);
-        setProduct(emptyProduct);
-        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
-    };*/
-    const deleteProduct = async (dataKey) => {
+    const deleteProduct = async () => {
         console.log("DELETE....",product.incidentNo);
         var deleteProductId = product.incidentNo;
         try {
@@ -245,40 +218,62 @@ const Table = () => {
         setSelectedIncidents(null);
         toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
     };
-*/const deleteSelectedIncident = async (product) => {
+*/
+const deleteSelectedIncident = async () => {
     try {
-        // Ensure product and product.selectId are not null or undefined
-        const incidentId = product.selectId;
-        
-        if (!incidentId) {
-            toast.current.show({ severity: 'warn', summary: 'No selection', detail: 'No incident selected for deletion', life: 3000 });
+        // Extract incidentNo from selected items
+        const idsToDelete = selectedIncidents?.map(item => item.incidentNo);
+
+        if (!idsToDelete || !idsToDelete.length) {
+            toast.current.show({
+                severity: 'warn',
+                summary: 'No Selection',
+                detail: 'Please select at least one incident to delete.',
+                life: 3000,
+            });
             return;
         }
 
-        // Correctly interpolate the id into the URL
-        const response = await fetch(`http://localhost:8082/deshboard/${incidentId}`, {
+        console.log("Deleting incidents with IDs:", idsToDelete);
+
+        // Make DELETE request with a JSON body
+        const response = await fetch("http://localhost:8082/dashboard"+idsToDelete, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
             },
+            body: JSON.stringify({ ids: idsToDelete }),
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to delete incident with ID: ${incidentId}`);
+            throw new Error("Failed to delete incidents.");
         }
 
-        // Filter the deleted incident out of the products state
-        let _products = products.filter((val) => val.id !== incidentId);
-        setProducts(_products);
+        // Update local state after deletion
+        const updatedProducts = products.filter(
+            (product) => !idsToDelete.includes(product.incidentNo)
+        );
+        setProducts(updatedProducts);
         setDeleteProductsDialog(false);
         setSelectedIncidents(null);
 
-        toast.current.show({ severity: 'success', summary: 'Successful', detail: 'Incident Deleted', life: 3000 });
+        toast.current.show({
+            severity: 'success',
+            summary: 'Deleted',
+            detail: 'Selected incidents have been deleted successfully.',
+            life: 3000,
+        });
+
     } catch (error) {
-        toast.current.show({ severity: 'error', summary: 'Error', detail: error.message, life: 3000 });
+        console.error("Error deleting incidents:", error);
+        toast.current.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.message || 'Something went wrong during deletion.',
+            life: 3000,
+        });
     }
 };
-
 
 
 /*
@@ -311,7 +306,7 @@ const Table = () => {
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
-                <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} />
+               {/* <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} /> */}
                 <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedIncidents || !selectedIncidents.length} />
             </div>
         );
