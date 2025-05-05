@@ -60,7 +60,7 @@ function IncidentForm() {
             message: 'Are you sure you want to proceed?',
             header: 'Confirmation',
             icon: 'pi pi-exclamation-triangle',
-            defaultFocus: 'accept',
+            defaultFocus: handleSubmit,
             accept,
             reject
         });
@@ -430,7 +430,6 @@ function IncidentForm() {
                         <div className="flex flex-column">
                             <ButtonGroup>
                                 <Button label="Save" onClick={confirm1} icon="pi pi-check" />
-                                <Button label="Delete" onClick={confirm2} icon="pi pi-trash" />
                                 <Button label="Cancel" icon="pi pi-times" />
                             </ButtonGroup>
                         </div>

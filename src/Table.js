@@ -35,7 +35,7 @@ const Table = () => {
         rating: 0,
         inventoryStatus: 'INSTOCK'
     };
-
+    const navigate = useNavigate();
     const [products, setProducts] = useState([])
     const [productDialog, setProductDialog] = useState(false);
     const [deleteProductDialog, setDeleteProductDialog] = useState(false);
@@ -68,13 +68,11 @@ const Table = () => {
       });
   }, [dataRefresh]);  // Empty dependency array ensures this runs once when the component is mounted
 
-/*
+
     const openNew = () => {
-        setProduct(emptyProduct);
-        setSubmitted(false);
-        setProductDialog(true);
+        navigate('/incident');
     };
-    */
+    
 /*
     const hideDialog = () => {
         setSubmitted(false);
@@ -306,7 +304,7 @@ const deleteSelectedIncident = async () => {
     const leftToolbarTemplate = () => {
         return (
             <div className="flex flex-wrap gap-2">
-               {/* <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} /> */}
+              <Button label="New" icon="pi pi-plus" severity="success" onClick={openNew} /> 
                 <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedIncidents || !selectedIncidents.length} />
             </div>
         );
@@ -429,17 +427,12 @@ const deleteSelectedIncident = async () => {
           sortable: true, // Enable sorting
         },
         {
-          field: 'respondedBy',
-          header: 'Responded By', // The column header
-          sortable: true, // Enable sorting
-        },
-        {
           field: 'initiator',
           header: 'Initiator', // The column header
           sortable: true, // Enable sorting
         },
         {
-          field: 'ResponsibleOfficer',
+          field: 'responsibleOfficer',
           header: 'Responsible Officer', // The column header
           sortable: true, // Enable sorting
         },
@@ -474,10 +467,12 @@ const deleteSelectedIncident = async () => {
     return (
         
         <div>
+            <Toolbar className="custom-toolbar" left={<h2> Incident Response Register </h2>} />
             <Toast ref={toast} />
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
-                 <DataTable value={data} selection={selectedIncidents} onSelectionChange={(e) => setSelectedIncidents(e.value)} dataKey={'incidentNo'}
+                 <DataTable value={data} columnResizeMode="expand" resizableColumns showGridlines tableStyle={{ minWidth: '50rem' }}
+                  selection={selectedIncidents} onSelectionChange={(e) => setSelectedIncidents(e.value)} dataKey={'incidentNo'}
                   paginator rows={10} rowsPerPageOptions={[5, 10, 25]} 
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products" globalFilter={globalFilter} header={header}>
