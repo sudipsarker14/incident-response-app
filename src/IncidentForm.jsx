@@ -9,6 +9,7 @@ import { Calendar } from 'primereact/calendar';
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from 'primereact/dropdown';
 import { Toolbar } from "primereact/toolbar";
+
 import { InputTextarea } from 'primereact/inputtextarea';
 function IncidentForm() {
     const navigate = useNavigate();
@@ -53,14 +54,20 @@ function IncidentForm() {
     }
 
     const reject = () => {
-        toast.current.show({ severity: 'warn', summary: 'Rejected', detail: 'You have rejected', life: 3000 });
+        toast.current.show({ severity: 'warn',
+             summary: 'Rejected', 
+             detail: 'You have rejected', 
+             life: 3000 });
+             setTimeout(() => {
+                window.location.reload();
+            }, 2000);
     }
     const confirm1 = () => {
         confirmDialog({
             message: 'Are you sure you want to proceed?',
             header: 'Confirmation',
             icon: 'pi pi-exclamation-triangle',
-            defaultFocus: handleSubmit,
+            defaultFocus: 'accept',
             accept,
             reject
         });
@@ -95,17 +102,27 @@ function IncidentForm() {
             alert('Actions Required By STATUS IS NULL OR EMPTY');
         }
         else {
+           
             try {
+
 
                 const response = await axios.post('http://localhost:8082/addIncident', incident);
                 console.log(response.data);
                 // goToAboutPage();
-                alert("Incident added successfully");
-
+               toast.current.show({ 
+            severity: 'info', 
+            summary: 'Confirmed', 
+            detail: 'Incident has been registered', 
+            life: 3000 });
+            
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
 
             } catch (error) {
                 console.log(error);
             }
+         
         }
     }
     const nature_incidents = [
@@ -130,12 +147,10 @@ function IncidentForm() {
     ];
     return (
 
-        <form onSubmit={handleSubmit}>
+        <form>
 
            <Toolbar className="custom-toolbar" left={<h1> Incident Response Register </h1>} />
-   
             <div class="formgrid grid">
-
                 <div class="field col-12 md:col-4">
                     <div className="card flex justify-content-center">
                         <div className="flex flex-column gap-1">
@@ -166,7 +181,6 @@ function IncidentForm() {
                 <div class="field col-12 md:col-4">
                     <div className="card flex justify-content-center">
                         <div className="flex flex-column gap-2">
-
                             <label htmlFor="reportingDate" className="font-bold block mb-2">
                                 Reporting Date:
                             </label>
@@ -225,10 +239,10 @@ function IncidentForm() {
                             <Dropdown value={incident.natureOfIncident || ''}
                                 onChange={(e) => setIncident({ ...incident, natureOfIncident: e.value })}
                                 required options={nature_incidents} optionLabel="nature" optionValue="nature"
-                                placeholder="Select a Incident" className="w-full md:w-14rem"
+                                className="w-full md:w-14rem"
                                 checkmark={true} highlightOnSelect={false} />
                             <small id="natureOfIncident-help">
-                                Select the nature of incident where the incident happened.
+                                Select the nature of incident.
                             </small>
                         </div>
                     </div>
@@ -272,10 +286,9 @@ function IncidentForm() {
                     <div className="card flex justify-content-center">
                         <div className="flex flex-column gap-2">
                             <label htmlFor="placeOfIncident" className="font-bold block mb-2">Place of Incident</label>
-                            <InputText
+                            <InputText keyfilter="alpha"
                                 id="placeOfIncident"
                                 value={incident.placeOfIncident || ''}
-                                placeholder="Enter the place of incident"
                                 onChange={(e) => setIncident({ ...incident, placeOfIncident: e.target.value })}
                                 required
                             />
@@ -290,10 +303,9 @@ function IncidentForm() {
                     <div className="card flex justify-content-center">
                         <div className="flex flex-column gap-1">
                             <label htmlFor="briefDescription" className="font-bold block mb-2">Brief Description:</label>
-                            <InputTextarea autoResize
+                            <InputTextarea autoResize keyfilter="alpha"
                                 id="placeOfIncident"
                                 value={incident.briefDescription || ''}
-                                placeholder="Enter the brief description of incident"
                                 onChange={(e) => setIncident({ ...incident, briefDescription: e.target.value })}
                                 required
                             />
@@ -307,15 +319,14 @@ function IncidentForm() {
                     <div className="card flex justify-content-center">
                         <div className="flex flex-column gap-2">
                             <label htmlFor="actionsTaken" className="font-bold block mb-2">Actions Taken:</label>
-                            <InputTextarea autoResize
+                            <InputTextarea autoResize keyfilter="alpha"
                                 id="actionsTaken"
                                 value={incident.actionsTaken || ''}
-
                                 onChange={(e) => setIncident({ ...incident, actionsTaken: e.target.value })}
                                 required
                             />
                             <small id="actionsTaken-help">
-                                Enter the actions taken during incident happened.
+                                Enter the actions taken during incident.
                             </small>
                         </div>
                     </div>
@@ -325,14 +336,14 @@ function IncidentForm() {
                     <div className="card flex justify-content-center">
                         <div className="flex flex-column gap-2">
                             <label htmlFor="initiator" className="font-bold block mb-2">Initiator:</label>
-                            <InputText
+                            <InputText keyfilter="alpha"
                                 id="initiator"
                                 value={incident.initiator || ''}
                                 onChange={(e) => setIncident({ ...incident, initiator: e.target.value })}
                                 required
                             />
                             <small id="initiator-help">
-                                Enter the initiator.
+                                Enter the name of initiator.
                             </small>
                         </div>
                     </div>
@@ -341,15 +352,14 @@ function IncidentForm() {
                     <div className="card flex justify-content-center">
                         <div className="flex flex-column gap-2">
                             <label htmlFor="initiator" className="font-bold block mb-2">Responsible Officer:</label>
-                            <InputText
+                            <InputText keyfilter="alpha"
                                 id="responsibleOfficer"
                                 value={incident.responsibleOfficer || ''}
-
                                 onChange={(e) => setIncident({ ...incident, responsibleOfficer: e.target.value })}
                                 required
                             />
                             <small id="responsibleOfficer-help">
-                                Enter the responsibleOfficer.
+                                Enter the name of Responsible Officer.
                             </small>
                         </div>
                     </div>
@@ -376,15 +386,14 @@ function IncidentForm() {
                     <div className="card flex justify-content-center">
                         <div className="flex flex-column gap-2">
                             <label htmlFor="impact" className="font-bold block mb-2">Impact:</label>
-                            <InputText
+                            <InputText keyfilter="alpha"
                                 id="impact"
                                 value={incident.impact || ''}
-                                placeholder="Enter the impact of incident"
                                 onChange={(e) => setIncident({ ...incident, impact: e.target.value })}
                                 required
                             />
                             <small id="impact-help">
-                                Enter the place where the incident happened.
+                                Enter the impact of the incident.
                             </small>
                         </div>
                     </div>
@@ -393,15 +402,14 @@ function IncidentForm() {
                     <div className="card flex justify-content-center">
                         <div className="flex flex-column gap-2">
                             <label htmlFor="stakeholders" className="font-bold block mb-2">Stakeholders:</label>
-                            <InputText
+                            <InputText keyfilter="alpha"
                                 id="stakeholders"
                                 value={incident.stakeholders || ''}
-                                placeholder="Enter the stakeholders of incident"
                                 onChange={(e) => setIncident({ ...incident, stakeholders: e.target.value })}
                                 required
                             />
                             <small id="impact-help">
-                                Enter the stakeholders where the incident happened.
+                                Enter the stakeholders name.
                             </small>
                         </div>
                     </div>
@@ -410,15 +418,14 @@ function IncidentForm() {
                     <div className="card flex justify-content-center">
                         <div className="flex flex-column gap-2">
                             <label htmlFor="remarks" className="font-bold block mb-2">Remarks:</label>
-                            <InputTextarea autoResize
+                            <InputTextarea autoResize keyfilter="alpha"
                                 id="remarks"
                                 value={incident.remarks || ''}
-                                placeholder="Enter the remarks of incident"
                                 onChange={(e) => setIncident({ ...incident, remarks: e.target.value })}
                                 required
                             />
                             <small id="remarks-help">
-                                Enter the stakeholders where the incident happened.
+                                Enter the remarks of the incident.
                             </small>
                         </div>
                     </div>
@@ -429,8 +436,8 @@ function IncidentForm() {
                     <div className="card flex justify-content-center">
                         <div className="flex flex-column">
                             <ButtonGroup>
-                                <Button label="Save" onClick={confirm1} icon="pi pi-check" />
-                                <Button label="Cancel" icon="pi pi-times" />
+                                <Button type='submit' label="Save" onClick={handleSubmit} icon="pi pi-check" />
+                                <Button label="Cancel" onClick={reject} icon="pi pi-times" />
                             </ButtonGroup>
                         </div>
                     </div>
