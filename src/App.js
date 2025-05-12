@@ -3,11 +3,11 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import IncidentForm from './IncidentForm';
 import ProductsDemo from './Deshboard';
 import Table from './Table';
-import DataTableExample from './Demo';
 
 import './index.css';
 //import './App.css';
 import './flags.css';
+import UpdateForm from './updateform';
 
 
 /*
@@ -28,8 +28,7 @@ function App() {
           <Route path="/incident" element={<IncidentForm />} />
           <Route path="/deshboard" element={<ProductsDemo />} /> 
           <Route path="/table" element={<Table />} /> 
-
-          <Route path="/demo" element={<DataTableExample />} />  
+          <Route path="/incident/:id" element={<UpdateForm />} />
         </Routes>
     </BrowserRouter>
     </div>

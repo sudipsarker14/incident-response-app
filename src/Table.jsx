@@ -20,7 +20,6 @@ const Table = () => {
           field: 'incidentNo', // Use the correct data key
           header: 'ID', // The column header
           sortable: true,
-          style: { width: '200px' }
         },
         {
           field: 'dateOfIncident',
@@ -35,6 +34,11 @@ const Table = () => {
         {
           field: 'placeOfIncident',
           header: 'Place of Incident', // The column header
+          sortable: true, // Enable sorting
+        },
+         {
+          field: 'briefDescription',
+          header: 'Description', // The column header
           sortable: true, // Enable sorting
         },
         {
@@ -98,15 +102,13 @@ const Table = () => {
     const [selectedIncidents, setSelectedIncidents] = useState(null);
     const [dataRefresh, setDataRefresh] = useState(false);
     const [globalFilter, setGlobalFilter] = useState(null);
-    
     const toast = useRef(null);
     const dt = useRef(null);
-    
     const [visibleColumns, setVisibleColumns] = useState(columns);
     const [data, setData] = useState([]);
-     const [loading, setLoading] = useState(true);
-     const [error, setError] = useState(null);
-     const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [posts, setPosts] = useState([]);
 
 
   // Fetching data from API using Axios
@@ -125,8 +127,7 @@ const Table = () => {
 
     const openNew = () => {
         navigate('/incident');
-    };
-    
+    };  
 
     const hideDeleteProductDialog = () => {
         setDeleteProductDialog(false);
@@ -136,10 +137,10 @@ const Table = () => {
         setDeleteProductsDialog(false);
     };
 
-  /*  const editProduct = (incident) => {
-        setProduct({...incident});
-        setProductDialog(true);
-    };*/
+ const editProduct = (incident) => {
+    console.log('Navigating to the form with incident ID:', incident.incidentNo);
+    navigate(`/incident/${incident.incidentNo}`);
+};
 
     const confirmDeleteProduct = (incident) => {
         console.log("DELETE....",incident.incidentNo);
@@ -240,7 +241,9 @@ const deleteSelectedIncident = async () => {
                 life: 2000,
             });            
             setDataRefresh(!dataRefresh);      
-             setDeleteProductsDialog(false);                      
+             setDeleteProductsDialog(false);  
+             setSelectedIncidents(null);
+                    
 
         } else {                                        
             throw new Error('Failed to delete incidents');
@@ -278,7 +281,7 @@ const deleteSelectedIncident = async () => {
     const actionBodyTemplate = (rowData) => {
         return (
             <React.Fragment>
-             {/*   <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => editProduct(rowData)} />*/}
+               <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => editProduct(rowData)} />
                 <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteProduct(rowData)} />
                 
             </React.Fragment>
@@ -304,18 +307,19 @@ const deleteSelectedIncident = async () => {
     const header = (
         <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
             <h4 className="m-0">Incidents</h4>
+            
+            <IconField iconPosition="left">
+                <InputIcon className="pi pi-search" />
+                <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
+            </IconField>
             <MultiSelect
             value={visibleColumns}
             options={columns}
             optionLabel="header"
             onChange={onColumnToggle}
-            className="w-full sm:w-20rem"
+            className="w-full sm:w-10rem"
             display="chip"
         />
-            <IconField iconPosition="left">
-                <InputIcon className="pi pi-search" />
-                <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
-            </IconField>
         </div>
     );
  
@@ -333,10 +337,7 @@ const deleteSelectedIncident = async () => {
     );
     const dateBodyTemplate = (rowData) => {
         return formatDate(rowData.date);
-      };
-
-   
-     
+    }; 
       
     return (
         
@@ -345,7 +346,7 @@ const deleteSelectedIncident = async () => {
             <Toast ref={toast} />
             <div className="card">
                 <Toolbar className="mb-4" left={leftToolbarTemplate} right={rightToolbarTemplate}></Toolbar>
-                 <DataTable value={data} columnResizeMode="expand" resizableColumns showGridlines tableStyle={{ minWidth: '50rem' }}
+                 <DataTable value={data} ref={dt} columnResizeMode="expand" resizableColumns showGridlines tableStyle={{ minWidth: '50rem' }}
                   selection={selectedIncidents} onSelectionChange={(e) => setSelectedIncidents(e.value)} dataKey={'incidentNo'}
                   paginator rows={10} rowsPerPageOptions={[5, 10, 25]} 
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
