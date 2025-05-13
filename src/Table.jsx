@@ -10,7 +10,6 @@ import { IconField } from 'primereact/iconfield';
 import { InputIcon } from 'primereact/inputicon';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import { Tag } from 'primereact/tag';
 import { MultiSelect } from 'primereact/multiselect';
 
 const Table = () => {
@@ -191,8 +190,7 @@ const Table = () => {
             });
         } // Make an API call to delete the product
            
-    };
-    
+    }; 
 
     const formatDate = (value) => {
         return value.toLocaleDateString('en-US', {
@@ -242,8 +240,7 @@ const deleteSelectedIncident = async () => {
             });            
             setDataRefresh(!dataRefresh);      
              setDeleteProductsDialog(false);  
-             setSelectedIncidents(null);
-                    
+             setSelectedIncidents(null);          
 
         } else {                                        
             throw new Error('Failed to delete incidents');
@@ -257,8 +254,6 @@ const deleteSelectedIncident = async () => {
         });                                             
     }                                                   
 };                                                      
-
-
 
     // New & Delete button
     const leftToolbarTemplate = () => {
@@ -274,34 +269,15 @@ const deleteSelectedIncident = async () => {
         return <Button label="Export" icon="pi pi-upload" className="p-button-help" onClick={exportCSV} />;
     };
 
-    const statusBodyTemplate = (rowData) => {
-        return <Tag value={rowData.inventoryStatus} severity={getSeverity(rowData)}></Tag>;
-    };
+   
 // Delete & edit button
     const actionBodyTemplate = (rowData) => {
         return (
             <React.Fragment>
                <Button icon="pi pi-pencil" rounded outlined className="mr-2" onClick={() => editProduct(rowData)} />
-                <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteProduct(rowData)} />
-                
+               <Button icon="pi pi-trash" rounded outlined severity="danger" onClick={() => confirmDeleteProduct(rowData)} />
             </React.Fragment>
         );
-    };
-
-    const getSeverity = (incident) => {
-        switch (incident.inventoryStatus) {
-            case 'INSTOCK':
-                return 'success';
-
-            case 'LOWSTOCK':
-                return 'warning';
-
-            case 'OUTOFSTOCK':
-                return 'danger';
-
-            default:
-                return null;
-        }
     };
 
     const header = (
@@ -335,9 +311,7 @@ const deleteSelectedIncident = async () => {
             <Button label="Yes" icon="pi pi-check" severity="danger" onClick= {deleteSelectedIncident} />
         </React.Fragment>
     );
-    const dateBodyTemplate = (rowData) => {
-        return formatDate(rowData.date);
-    }; 
+
       
     return (
         
